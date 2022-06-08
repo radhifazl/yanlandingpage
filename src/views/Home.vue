@@ -2,10 +2,10 @@
   <div class="home page-container">
       <div class="home-content">
         <div class="content left-side">
-          <h1><span>YAN</span> <br> INVITATION</h1>
+          <h1>{{ title }}</h1>
         </div>
         <div class="content right-side">
-          <h1>Buat Undangan Lebih <br class="d-lg-block d-none"> Modern Dengan Undangan <br> Digital</h1>
+          <h1>{{ subtitle }}</h1>
         </div>
         <Slides/>
       </div>
@@ -14,9 +14,46 @@
 
 <script>
 import Slides from '../components/HomeSlides/Slides.vue'
+import { onMounted, ref } from 'vue'
+import { storage, firestore } from "@/firebase";
+import { getDoc, doc, setDoc } from "firebase/firestore";
+
 export default {
   components: { Slides },
-    name: 'HomeView'
+  name: 'HomeView',
+  data () {
+    return {
+      images: [],
+      imagesUrl: []
+    }
+  },
+  setup () {
+    let title = ref('')
+    let subtitle = ref('')
+
+    const getTitleAndSubtitle = async () => {
+      const docRef = doc(firestore, 'home', 'yanpage_home')
+      await getDoc(docRef)
+        .then(doc => {
+          if(doc.exists) {
+            title.value = doc.data().title
+            subtitle.value = doc.data().subtitle
+          } else {
+            title.value = 'Yanpage'
+            subtitle.value = 'A simple blog'
+          }
+        })
+    }
+
+    onMounted(() => {
+      getTitleAndSubtitle()
+    })
+
+    return {
+      title,
+      subtitle
+    }
+  }
 }
 </script>
 
@@ -50,8 +87,8 @@ export default {
 .left-side h1 {
   color: #FFFFFF;
   font-weight: 600;
-  font-size: 4rem;
-  line-height: 3.5rem;
+  font-size: 6rem;
+  line-height: 6rem;
 }
 
 .left-side h1 span {
@@ -59,7 +96,7 @@ export default {
 }
 
 .right-side {
-  width: 60%;
+  width: 57%;
   background: var(--bg);
   transition: all 0.35s ease;
 }
@@ -67,6 +104,7 @@ export default {
 .right-side h1 {
   color: var(--primary-color);
   font-weight: 600;
+  font-size: 3rem;
 }
 
 @media screen and (max-width: 868px) {
@@ -88,16 +126,21 @@ export default {
   }
 
   .left-side {
-    height: 70%;
+    height: 60%;
   }
 
   .left-side h1 {
     font-size: 3.2rem;
+    line-height: 4rem;
   }
 
   .right-side {
     padding-top: 1.5rem;
     height: 100%;
+  }
+
+  .right-side h1 {
+    font-size: 1.8rem;
   }
 }
 </style>

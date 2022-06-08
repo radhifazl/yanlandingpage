@@ -190,7 +190,7 @@ export default {
 }
 
 .nav-item {
-    margin-right: 1rem;
+    margin-right: 0.7rem;
 }
 
 .nav-link {

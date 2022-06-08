@@ -1,8 +1,8 @@
 <template>
   <div class="themes-container page-container">
-      <PageTitle :title="'Tema Terbaik YAN'" class="theme-page-title"/>
+      <PageTitle :title="pageTitle" class="theme-page-title"/>
 
-      <Carousel @prev="prev" @next="next">
+      <Carousel @prev="prev" @next="next" :loaded="loaded">
           <CarouselSlide v-for="(theme, index) in themes" 
             :key="theme.name" 
             :index="index"
@@ -17,8 +17,8 @@
             </Transition>
 
             <Transition name="fade">
-                <div class="carousel-img" v-show="visibleSlide === index">
-                    <img :src="theme.src">
+                <div class="carousel-img">
+                    <img :src="theme.slideUrl">
                 </div>
             </Transition>
           </CarouselSlide>
@@ -30,31 +30,25 @@
 import PageTitle from '@/components/Title/PageTitle.vue'
 import Carousel from '@/components/Carousel/Carousel.vue'
 import CarouselSlide from '@/components/Carousel/CarouselSlide.vue'
+import { storage, firestore } from "@/firebase";
+import {  
+    getDocs, collection, doc, getDoc, addDoc
+} from "firebase/firestore";
+import { getDownloadURL, ref as sref, listAll } from "firebase/storage";
+import Swal from 'sweetalert2';
+
 export default {
     components: { Carousel, PageTitle, CarouselSlide },
     name: 'ThemesView',
     data() {
         return {
-            themes: [
-                {
-                    name: 'Samudera Biru',
-                    src: require('@/assets/images/themeslides/T-1.png'),
-                },
-                {
-                    name: 'Green Gold',
-                    src: require('@/assets/images/themeslides/T-2.png'),
-                },
-                {
-                    name: 'Love Shades',
-                    src: require('@/assets/images/themeslides/T-3.png'),
-                },
-                {
-                    name: 'Flower Purple',
-                    src: require('@/assets/images/themeslides/T-4.png'),
-                },
-            ],
+            pageTitle: '',
+            themeNames: [],
+            themesUrl: [],
+            themes: [],
             visibleSlide: 0,
             direction: '',
+            loaded: false
         }
     },
     computed: {
@@ -78,7 +72,32 @@ export default {
                 this.visibleSlide--
             }
             this.direction = 'right'
-        }
+        },
+        async getSlides () {
+            this.themes = []
+            const colRef = collection(firestore, 'themes', 'yanpage_themes', 'slides')
+            await getDocs(colRef)
+              .then((docs) => {
+                  docs.forEach((slide) => {
+                      this.themes.push(slide.data())
+                  })
+              }).catch((error) => {
+                  console.log(error)
+              }).finally(() => {
+                  this.loaded = true
+              })
+        },
+        getPageTitle() {
+            const docRef = doc(firestore, 'themes', 'yanpage_themes')
+            getDoc(docRef)
+              .then((doc) => {
+                  this.pageTitle = doc.data().title
+              })
+        },
+    },
+    mounted () {
+        this.getPageTitle()
+        this.getSlides()
     }
 }
 </script>

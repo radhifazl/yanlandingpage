@@ -23,7 +23,7 @@ export default {
   name: 'AppView',
   data () {
     return {
-      mode: 'Light'
+      mode: 'Light',
     }
   },
   components: {
@@ -67,7 +67,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

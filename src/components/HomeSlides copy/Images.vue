@@ -8,7 +8,7 @@
 
 <script>
 import { firestore } from "@/firebase";
-import { getDocs, doc, collection } from "firebase/firestore";
+import { getDoc, doc } from "firebase/firestore";
 import { ref, onMounted } from 'vue';
 
 export default {
@@ -16,14 +16,12 @@ export default {
     setup () {
         const images = ref([])
         const getSlides = async () => {
-            const docRef = collection(firestore, 'home', 'yanpage_home', 'images')
-            await getDocs(docRef)
-                .then(docs => {
-                    docs.forEach(doc => {
-                        if(doc.exists) {
-                            images.value.push(doc.data().url)
-                        }
-                    })
+            const docRef = doc(firestore, 'home', 'yanpage_home')
+            await getDoc(docRef)
+                .then(doc => {
+                    if(doc.exists) {
+                        images.value = doc.data().imageUrl
+                    }
                 })
         }
 

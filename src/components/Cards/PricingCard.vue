@@ -8,19 +8,16 @@
         </div>
 
         <ul class="price-features mt-4">
-            <slot />
+            <slot name="priceList"/>
         </ul>
       </div>
 
-      <div class="price-label text-center">
-          <h5>
-              {{ price }}
-          </h5>
-      </div>
+      <slot name="priceLabel"/>
   </div>
 </template>
 
 <script>
+
 export default {
     name: 'PricingCard',
     props: [
@@ -38,20 +35,6 @@ export default {
     border-radius: 10px;
     box-shadow: var(--card-boxshadow);
     position: relative;
-}
-
-.price-label {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding-top: 0.5rem;
-    background: var(--primary-color);
-}
-
-.price-label h5 {
-    font-weight: 600;
-    color: #FFFFFF;
 }
 
 .price-type h4 {

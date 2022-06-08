@@ -1,6 +1,6 @@
 <template>
   <div class="carousel">
-        <div class="carousel-btn d-flex gap-3">
+        <div class="carousel-btn d-flex gap-3" v-if="loaded">
             <button class="th-btn prev" @click="prev">
                 Prev
             </button>
@@ -15,6 +15,9 @@
 <script>
 export default {
     name: 'CarouselComp',
+    props: [
+        'loaded'
+    ],
     methods: {
         prev() {
             this.$emit('prev')

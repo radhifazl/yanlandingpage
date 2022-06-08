@@ -1,65 +1,115 @@
 <template>
-  <div class="features-box-wrapper">
-      <div class="feature-box" v-for="(feature, i) in features" :key="feature.name" :id="'feature-' + i">
-          <div class="feature-icon">
-              <img :src="feature.icon">
-          </div>
+   <div class="features-boxes"> 
+      <div class="feature-box w-100" v-if="loading">
+          <h5 style="color: #888">Loading Features...</h5>
+      </div>
+      <h5 style="color: #888" v-if="error">There is an error occured, sorry!</h5>
+      <div class="feature-box" v-for="feature in features" :key="feature.title" :id="feature.title">
+            <div class="feature-icon mx-auto">
+                <img :src="feature.icon">
+            </div>
 
-          <div class="feature-title mt-3">
-              <h5>
-                  {{ feature.name }}
-              </h5>
-          </div>
+            <div class="feature-title mt-3 text-center">
+                <h5>
+                    {{ feature.title }}
+                </h5>
+            </div>
 
-          <div class="feature-desc">
-              <p>
-                    {{ feature.desc }}
-              </p>
-          </div>
+            <div class="feature-desc">
+                <p>
+                    {{ feature.subtitle }}
+                </p>
+            </div>
       </div>
   </div>
 </template>
 
 <script>
+import { storage, firestore } from "@/firebase";
+import {  
+    ref as  sref, getDownloadURL, listAll
+} from "firebase/storage";
+import {  
+    addDoc, doc, getDoc
+} from "firebase/firestore";
 
 export default {
     name: 'FeaturesBox',
     data () {
         return {
-            features: [
-                {
-                    icon: require('@/assets/icons/Message.svg'),
-                    name: 'Buku Tamu',
-                    desc: 'Tamu bisa mengirim ucapan dan doa disertai status kehadiran'
-                },
-                {
-                    icon: require('@/assets/icons/Gallery.svg'),
-                    name: 'Galeri Foto',
-                    desc: 'Bagikan momen bahagia mu kepada tamu undangan'
-                },
-                {
-                    icon: require('@/assets/icons/BGM.svg'),
-                    name: 'Background Music',
-                    desc: 'Hiasi undanganmu dengan menambahkan musik favorit'
-                },
-                {
-                    icon: require('@/assets/icons/Amplop.svg'),
-                    name: 'Amplop Digital',
-                    desc: 'Tamu bisa memberikan amplop secara digital / dengan e-money'
-                },
-            ]
+            loading: false,
+            error: false,
+            features: [],
+            icons: '',
+            iconsUrl: ''
         }
+    },
+    props: [
+        'storageOrder'
+    ],
+    methods: {
+        async getIconsUrl () {
+            this.loading = true
+            const docRef = doc(firestore, 'features', 'yanpage_features', `${this.storageOrder}_feature`, this.storageOrder)
+
+            await getDoc(docRef)
+              .then(doc => {
+                if(doc.exists) {
+                    this.features.push({
+                        title: doc.data().feature_title,
+                        subtitle: doc.data().feature_subtitle,
+                        icon: doc.data().iconUrl
+                    })
+                } else {
+                    this.features = []
+                }
+              }).catch(() => {
+                  this.error = true
+              }).finally(() => {
+                    this.loading = false
+              })
+        }
+    },
+    mounted () {
+        this.getIconsUrl()
     }
+    // setup () {
+    //     const icons = ref([])
+    //     const iconsUrl = ref([])
+
+    //     const getIconUrl = async () => {
+    //         const listRef = sref(storage, 'features', `${this.storageOrder}_icon`)
+    //         await listAll(listRef)
+    //           .then(list => {
+    //             list.items.forEach(item => {
+    //               icons.value.push(item.name)
+    //             })
+    //           }).catch(err => {
+    //             console.log(err.code)
+    //           })
+
+    //         icons.value.forEach(async icon => {
+    //             await getDownloadURL(sref(storage, 'features/' + icon))
+    //               .then(url => {
+    //                 iconsUrl.value.push(url)
+    //               })
+    //         })
+
+    //         console.log(iconsUrl.value)
+
+    //         iconsUrl.value.forEach((url, i) => {
+    //             console.log(url)
+    //         })
+    //     }
+
+    //     onMounted(() => {
+    //         getIconUrl()
+    //     })
+    // }
 }
 </script>
 
 <style scoped>
-.features-box-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
 
 .feature-box {
     width: 300px;
@@ -71,6 +121,17 @@ export default {
     border: 2px solid var(--primary-color);
     border-radius: 8px;
     box-shadow: var(--feature-boxshadow);
+}
+
+.feature-icon {
+    width: 80%;
+    height: 100px;
+}
+
+.feature-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .feature-title H5 {

@@ -8,17 +8,11 @@
         </div>
 
         <ul class="price-features mt-4">
-            <li class="price-ft-list" v-for="premFT in premiumFeatures" :key="premFT">
-                {{ premFT }}
-            </li>
+            <slot name="priceList"/>
         </ul>
       </div>
 
-      <div class="price-label text-center">
-          <h5>
-              {{ price }}
-          </h5>
-      </div>
+      <slot name="priceLabel"/>
   </div>
 </template>
 
@@ -29,24 +23,6 @@ export default {
         'type',
         'price',
     ],
-    data() {
-        return {
-            premiumFeatures: [
-                'Bebas Revisi',
-                'Bebas Memilih Fitur',
-                'Background Music',
-                'Aktif Selamanya',
-                'Google Maps',
-                'Hitung Mundur Acara',
-                'Galeri Pengantin',
-                'Amplop Digital',
-                'Buku Tamu',
-                'Embed Video YouTube',
-                'Pilihan Tema Website Banyak',
-                'Request Fitur'
-            ]
-        }
-    }
 }
 </script>
 
