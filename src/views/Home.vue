@@ -31,6 +31,8 @@ export default {
     let title = ref('')
     let subtitle = ref('')
 
+    const navbar = document.querySelectorAll('.content')
+
     const getTitleAndSubtitle = async () => {
       const docRef = doc(firestore, 'home', 'yanpage_home')
       await getDoc(docRef)

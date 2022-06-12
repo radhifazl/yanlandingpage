@@ -107,8 +107,6 @@ export default {
                       })
                   })
               })
-
-              console.log(this.basicPriceList)
               
             const regularPriceCollection = collection(firestore, 'prices', 'yanpage_prices', 'regular')
             getDocs(regularPriceCollection)
@@ -120,8 +118,6 @@ export default {
                       })
                   })
               })
-
-            console.log(this.regularPriceList)
               
             const premiumPriceCollection = collection(firestore, 'prices', 'yanpage_prices', 'premium')
             getDocs(premiumPriceCollection)
@@ -133,8 +129,6 @@ export default {
                       })
                   })
               })
-
-            console.log(this.premiumPriceList)
         }
     },
     mounted () {

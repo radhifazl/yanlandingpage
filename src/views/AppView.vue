@@ -18,6 +18,9 @@ import Features from '@/views/Features.vue'
 import Home from '@/views/Home.vue'
 import Pricing from '@/views/Pricing.vue'
 import Themes from '@/views/Themes.vue'
+import { firestore } from "@/firebase";
+import { addDoc, collection, updateDoc } from "firebase/firestore";
+import { getDate } from "@/components/Date";
 
 export default {
   name: 'AppView',
@@ -60,10 +63,23 @@ export default {
         return 'Light'
       }
     },
+    getLiveVisitCount() {
+      fetch('https://api.countapi.xyz/update/yanlandingpage/landingpage/?amount=1')
+        .then(response => response.json())
+        .then(async data => {
+          const visitRef = collection(firestore, 'webvisit')
+          await addDoc(visitRef, {
+            count: data.value,
+            date: getDate(new Date()),
+            month: new Date().getMonth() + 1,
+          })
+        })
+    }
   },
   mounted() {
     const initUserTheme = this.getMode() || this.getMediaPreference()
     this.setMode(initUserTheme)
+    this.getLiveVisitCount()
   }
 }
 </script>
