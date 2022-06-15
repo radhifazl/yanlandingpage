@@ -44,6 +44,10 @@ export default {
     height: 170px;
 }
 
+.image-slide:hover {
+    transition: all 0.35s ease-in-out;
+}
+
 
 .image-slide img {
     width: 100%;

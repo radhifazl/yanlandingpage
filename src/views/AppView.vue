@@ -19,7 +19,7 @@ import Home from '@/views/Home.vue'
 import Pricing from '@/views/Pricing.vue'
 import Themes from '@/views/Themes.vue'
 import { firestore } from "@/firebase";
-import { addDoc, collection, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { getDate } from "@/components/Date";
 
 export default {
@@ -63,22 +63,45 @@ export default {
         return 'Light'
       }
     },
-    getLiveVisitCount() {
-      fetch('https://api.countapi.xyz/update/yanlandingpage/landingpage/?amount=1')
-        .then(response => response.json())
-        .then(async data => {
-          const visitRef = collection(firestore, 'webvisit')
-          await addDoc(visitRef, {
-            count: data.value,
-            date: getDate(new Date()),
-            month: new Date().getMonth() + 1,
-          })
+    async getLiveVisitCount() {
+      const colRef = collection(firestore, 'userIP')
+      const q = query(colRef, where('ip', '==', localStorage.getItem('ip')))
+
+      await getDocs(q)
+      .then(docs => {
+        docs.forEach(async doc => {
+          if(!doc.exists()) {
+            await fetch('https://api.countapi.xyz/update/yanpage/landingpage/?amount=1')
+            .then(response => response.json())
+            .then(async data => {
+              const visitRef = doc(firestore, 'webvisit', getDate(new Date()))
+              await setDoc(visitRef, {
+                ip: localStorage.getItem('ip'),
+                count: data.value,
+                date: getDate(new Date()),
+                month: new Date().getMonth() + 1
+              })
+            })
+          } else {
+            console.log('IP already exists')
+          }
         })
+      })
     }
   },
-  mounted() {
+  async mounted() {
     const initUserTheme = this.getMode() || this.getMediaPreference()
     this.setMode(initUserTheme)
+
+    await fetch('https://api64.ipify.org?format=json')
+    .then(response => response.json())
+    .then(async data => {
+      localStorage.setItem('ip', data.ip)
+      await setDoc(doc(firestore, 'userIP', data.ip), {
+        ip: data.ip,
+      })
+    })
+    
     this.getLiveVisitCount()
   }
 }
